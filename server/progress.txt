@@ -1,0 +1,10 @@
+1:26:07 -> Saturday , 6/7/2024
+2:10:31 -> Sunday , 7/7/2024 , file = user.controller.js , require = internet connection -> @types/cookie-parser and ejs
+2:40:31 -> Sunday , 7/7/2024 , registration part complelted 
+3:23:31 -> Monday , 8/7/2024 , Login, Logout, protected Routes 
+3:55:58 -> Monday , 8/7/2024 ,  refresh token, get user info,socila auth,update user info
+4:15:35 -> Tuesday , 9/7/2024 , updata user info,password,profile picture TODO => make an endpoint for profile picture
+5:19:18 -> Tuesday , 16/7/2024 , todo: comment all code where redis is intercting with there database
+5:46:18 -> Saturday , 17/8/2024 , send email to the user to reply 
+6:04:18 -> Saturday , 18/8/2024 , add reply to the review 
+6:27:18 -> tuesday , 20/8/2024 , order controller 

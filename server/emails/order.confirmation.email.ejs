@@ -64,6 +64,12 @@
                     Thank you for your order. Your order details are as follows:
                 </p>
                 <table>
+                    <tr>
+                        <td>Order # : <%= order._id %></td>
+                        <td>Order date #: <%= order.date %></td>
+                    </tr>
+                </table>
+                <table>
                     <thead>
                         <tr>
                             <th>Product</th>
@@ -73,24 +79,18 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Product 1</td>
+                            <td><%= order.name %></td>
                             <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>Product 2</td>
-                            <td>2</td>
-                            <td>$200</td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">Total</td>
-                            <td>$300</td>
+                            <td><%= order.price %></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="footer">
-                <p>If you have any question, Please don't hasitate to contect our su</p>
+                <p>
+                    If you have any question, Please don't hasitate to contect
+                    our su
+                </p>
             </div>
         </div>
     </body>

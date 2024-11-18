@@ -7,8 +7,12 @@ import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import sendMail from "../utils/sendMaills";
 import { sendToken } from "../utils/jwt";
 import cloudinary from "cloudinary";
-import { redis } from "../utils/redis";
+// import { redis } from "../utils/redis";
 import { RedisKey } from "ioredis";
+import {
+    allUsersService,
+    updateUserRoleService,
+} from "../services/user.services";
 
 // REGISTER USER
 
@@ -23,6 +27,10 @@ export const UserRegistration = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { name, email, password } = req.body as IRegisterationBody;
+
+            if (!name || !email || !password) {
+                return next(new ErrorHandler("In-complete data", 400));
+            }
 
             const isEmailExists = await userModel.findOne({ email });
 
@@ -42,13 +50,15 @@ export const UserRegistration = CatchAsyncError(
 
             const data = { user: { name: user.name }, activationCode };
 
+            console.log(activationToken, activationCode);
+
             try {
-                await sendMail({
-                    email: user.email,
-                    subject: "Activation your account",
-                    template: "activation.email.ejs",
-                    data,
-                });
+                // await sendMail({
+                //     email: user.email,
+                //     subject: "Activation your account",
+                //     template: "activation.email.ejs",
+                //     data,
+                // });
 
                 res.status(201).json({
                     success: true,
@@ -172,7 +182,7 @@ export const logoutUser = (req: Request, res: Response, next: NextFunction) => {
         // res.cookie("refresh_token", "", { maxAge: 1 });
         // res.cookie("access_token", "", { maxAge: 1 });
 
-        redis.del(req.user.id); //WHEN INTERNET CONNECTION IS AVAILIBLE
+        // redis.del(req.user.id); //WHEN INTERNET CONNECTION IS AVAILIBLE
 
         return res.status(200).json({
             success: true,
@@ -291,7 +301,7 @@ export const updateUser = CatchAsyncError(
             await user?.save();
 
             // TODO WHEN INTERNET CONNECTION IS THERE
-            redis.set(userId as RedisKey, JSON.stringify(user));
+            // redis.set(userId as RedisKey, JSON.stringify(user));
 
             return res.status(201).json({
                 success: true,
@@ -373,36 +383,36 @@ export const updateUserProfilePicture = CatchAsyncError(
                 return next(new ErrorHandler("User not found !", 404));
             }
 
-            if (user?.avatar?.public_id) {
-                await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
+            // if (user?.avatar?.public_id) {
+            //     await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
 
-                const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-                    folder: "avatars",
-                    width: 150,
-                });
+            //     const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            //         folder: "avatars",
+            //         width: 150,
+            //     });
 
-                user.avatar = {
-                    public_id: myCloud.public_id,
-                    url: myCloud.url,
-                };
-            } else {
-                const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-                    folder: "avatars",
-                    width: 300,
-                    transformation: {
-                        crop: "scale",
-                    },
-                });
+            //     user.avatar = {
+            //         public_id: myCloud.public_id,
+            //         url: myCloud.url,
+            //     };
+            // } else {
+            //     const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            //         folder: "avatars",
+            //         width: 300,
+            //         transformation: {
+            //             crop: "scale",
+            //         },
+            //     });
 
-                user.avatar = {
-                    public_id: myCloud.public_id,
-                    url: myCloud.url,
-                };
-            }
+            //     user.avatar = {
+            //         public_id: myCloud.public_id,
+            //         url: myCloud.url,
+            //     };
+            // }
 
             await user.save();
 
-            await redis.set(user._id as RedisKey, JSON.stringify(user)); //TODO => UNCOMMENT IT WHEN INTERNET CONNECTION IS THERE
+            // await redis.set(user._id as RedisKey, JSON.stringify(user)); //TODO => UNCOMMENT IT WHEN INTERNET CONNECTION IS THERE
 
             return res.status(200).json({
                 success: true,
@@ -410,6 +420,61 @@ export const updateUserProfilePicture = CatchAsyncError(
             });
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400));
+        }
+    }
+);
+
+// all users only for admin
+export const getAllUsers = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await allUsersService(res);
+        } catch (error: any) {
+            console.log("[ERROR IN GET ALL USER] :", error.message);
+            return next(new ErrorHandler(error.message, 500));
+        }
+    }
+);
+
+// update user role only for admin
+export const updateUserRole = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { _id, role } = req.body;
+
+            await updateUserRoleService(res, _id, role);
+        } catch (error: any) {
+            console.log("[ ERROR IN UPDATE USER ROLE ] :", error.message);
+            return next(new ErrorHandler(error.message, 500));
+        }
+    }
+);
+
+export const deleteUser = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.params.id;
+
+            if (userId === req.user?._id?.toString()) {
+                return next(
+                    new ErrorHandler("You'r trying to delete yourself", 400)
+                );
+            }
+
+            const dbUser = await userModel.findById(userId);
+
+            if (!dbUser) {
+                return next(new ErrorHandler("User not found.", 404));
+            }
+
+            await dbUser.deleteOne();
+
+            return res.status(200).json({
+                success: true,
+                message: "User deleted successfully.",
+            });
+        } catch (error: any) {
+            console.log("[ ERROR IN DELETE USER ] :", error.message);
         }
     }
 );

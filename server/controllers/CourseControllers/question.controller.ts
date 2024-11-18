@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import ErrorHandler from "../../utils/ErrorHandler";
 import userModel from "../../models/user.model";
 import sendMail from "../../utils/sendMaills";
+import NotificationModel from "../../models/notification.model";
+import cron from "node-cron";
 
 // ask question in course
 interface IAskQuestion {
@@ -48,6 +50,12 @@ export const askQuestion = CatchAsyncError(
 
             // push the asked question to the course content
             courseContent.questions.push(newQuestion);
+
+            await NotificationModel.create({
+                user: req.user._id,
+                title: "New Question",
+                message: `You have a new question in course:${course?.name} , course content:${courseContent.title}`,
+            });
 
             // save the course model
             await course?.save();
@@ -271,7 +279,11 @@ export const addQuestionReply = CatchAsyncError(
             await course.save();
 
             if (req.user?._id === questionUser?._id) {
-                // send notification to the user
+                await NotificationModel.create({
+                    user: req.user._id,
+                    title: "New Question Reply",
+                    message: `You have a new question reply in course: ${course.name}, course content: ${courseContent.title}`,
+                });
             } else {
                 const data = {
                     name: questionUser?.name,
@@ -300,4 +312,17 @@ export const addQuestionReply = CatchAsyncError(
             return next(new ErrorHandler(error.message, 500));
         }
     }
+);
+
+// AUTO DELETE READ NOTIFICATIONS OF 30 DAYS OLD
+cron.schedule(
+    "0 0 0 * * *",
+    CatchAsyncError(async () => {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+        await NotificationModel.deleteMany({
+            status: "read",
+            createdAt: { $lte: thirtyDaysAgo },
+        });
+    })
 );

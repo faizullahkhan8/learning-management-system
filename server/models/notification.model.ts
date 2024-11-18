@@ -25,6 +25,7 @@ const NotificationSchema = new Schema<INotification>(
             type: String,
             required: true,
             enum: ["unread", "read"],
+            default: "unread",
         },
     },
     {

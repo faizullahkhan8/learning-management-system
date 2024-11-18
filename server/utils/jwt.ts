@@ -1,8 +1,8 @@
 require("dotenv").config();
 import { Response } from "express";
 import { IUser } from "../models/user.model";
-import { redis } from "./redis";
-import { RedisKey } from "ioredis";
+// import { redis } from "./redis";
+// import { RedisKey } from "ioredis";
 
 interface ITokenOptions {
     expires: Date;
@@ -17,7 +17,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     const refresh_token = user.SignRefreshToken();
 
     // UPLOAD SESSION TO REDIS
-    redis.set(user._id as RedisKey, JSON.stringify(user) as any); // NOTE => UN_COMMENT IT WHEN INTERNET CONNECTION IS AVIALIBLE
+    // redis.set(user._id as RedisKey, JSON.stringify(user) as any); // NOTE => UN_COMMENT IT WHEN INTERNET CONNECTION IS AVIALIBLE
 
     // GET EXPIRES TIME FROM DOT ENV AND CONVERTES INTO BASE 10
     const ACCESS_TOKEN_EXPIRES = parseInt(
@@ -30,7 +30,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     );
 
     const accessTokenOptions: ITokenOptions = {
-        expires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES * 60 * 60 * 1000),
+        expires: new Date(ACCESS_TOKEN_EXPIRES * 60 * 60 * 1000),
         maxAge: ACCESS_TOKEN_EXPIRES * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "lax",
@@ -38,9 +38,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     };
 
     const refreshTokenOptions: ITokenOptions = {
-        expires: new Date(
-            Date.now() + REFRESH_TOKEN_EXPIRES * 24 * 60 * 60 * 1000
-        ),
+        expires: new Date(REFRESH_TOKEN_EXPIRES * 24 * 60 * 60 * 1000),
         maxAge: REFRESH_TOKEN_EXPIRES * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "lax",

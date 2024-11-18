@@ -4,9 +4,13 @@ import cookieParser from "cookie-parser";
 
 // FILE IMPORTS
 import { ErrorMiddleware } from "./middlewares/error.middleware";
+import ErrorHandler from "./utils/ErrorHandler";
+
 import userRouter from "./routes/user.route";
 import courseRoute from "./routes/course.route";
-import ErrorHandler from "./utils/ErrorHandler";
+import orderRoute from "./routes/order.route";
+import notificationRoute from "./routes/notification.route";
+import analyticsRoute from "./routes/analytics.route";
 
 // INSTANCES
 export const app = express();
@@ -32,6 +36,9 @@ app.use(
 // ROUTES
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/course", courseRoute);
+app.use("/api/v1/order", orderRoute);
+app.use("/api/v1/notification", notificationRoute);
+app.use("/api/v1/analytics", analyticsRoute);
 
 // TESTING API
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

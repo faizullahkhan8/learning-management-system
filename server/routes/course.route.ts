@@ -1,8 +1,10 @@
 import express from "express";
 import { authorizeRole, isAuthenticated } from "../middlewares/auth";
 import {
+    deleteCourse,
     editCourse,
     getAllCourses,
+    getAllCoursesForAdmin,
     getCourseByUser,
     getSingleCourse,
     uploadCourse,
@@ -39,6 +41,20 @@ router.put(
     isAuthenticated,
     authorizeRole("admin"),
     addReviewReply
+);
+
+router.get(
+    "/get-for-admin/all",
+    isAuthenticated,
+    authorizeRole("admin"),
+    getAllCoursesForAdmin
+);
+
+router.delete(
+    "/delete/:id",
+    isAuthenticated,
+    authorizeRole("admin"),
+    deleteCourse
 );
 
 export default router;

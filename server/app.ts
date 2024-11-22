@@ -11,6 +11,7 @@ import courseRoute from "./routes/course.route";
 import orderRoute from "./routes/order.route";
 import notificationRoute from "./routes/notification.route";
 import analyticsRoute from "./routes/analytics.route";
+import layoutRoute from "./routes/layout.route";
 
 // INSTANCES
 export const app = express();
@@ -39,6 +40,7 @@ app.use("/api/v1/course", courseRoute);
 app.use("/api/v1/order", orderRoute);
 app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/analytics", analyticsRoute);
+app.use("/api/v1/layout", layoutRoute);
 
 // TESTING API
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

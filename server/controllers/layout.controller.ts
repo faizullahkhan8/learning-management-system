@@ -130,13 +130,9 @@ export const editLayout = CatchAsyncError(
                         .json({ message: "FAQ question not found" });
                 }
 
-                // Update the question and answer if provided
-                // faqItem.question = question || faqItem.question;
-                // faqItem.answer = answer || faqItem.answer;
-
                 console.log(question, answer);
 
-                const dbLayout = await LayoutModel.findOneAndUpdate(
+                await LayoutModel.findOneAndUpdate(
                     { _id: faqDoc._id, "faq._id": faqItem._id },
                     {
                         $set: {
@@ -148,31 +144,89 @@ export const editLayout = CatchAsyncError(
                         new: true,
                     }
                 );
-
-                // // Save the updated FAQ document
-                // await faqDoc.save();
             }
-
-            if (type === "CATEGORY") {
-                const dbCategory = await LayoutModel.findOne({ type });
-
-                if (!dbCategory) {
-                    return next(new ErrorHandler("FAQ not found!", 404));
-                }
-
-                const { categories } = req.body;
-
-                await LayoutModel.findByIdAndUpdate(dbCategory._id, {
-                    categories,
-                });
-            }
-
             return res.status(201).json({
                 success: true,
                 message: `${type} is updated`,
             });
         } catch (error: any) {
             console.log("ERROR IN EDIT LAYOUT :", error.message);
+            return next(new ErrorHandler(error.message, 500));
+        }
+    }
+);
+
+export const deleteLayout = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { type } = req.query;
+
+            if (type === "CATEGORY") {
+                const clientCategory = req.query.category;
+
+                const categoryDoc = await LayoutModel.findOne({
+                    type: "CATEGORY",
+                });
+
+                if (!categoryDoc) {
+                    return next(
+                        new ErrorHandler("Category document not found", 404)
+                    );
+                }
+
+                // is the deleting category exists or not
+                const categoryExists = categoryDoc.categories.some(
+                    (category: any) => category.title === clientCategory
+                );
+
+                if (!categoryExists) {
+                    return next(
+                        new ErrorHandler("Category does not exist", 404)
+                    );
+                }
+
+                // delete the category
+                categoryDoc.categories = categoryDoc.categories.filter(
+                    (category: any) => category.title !== clientCategory
+                );
+
+                // save the category document
+                await categoryDoc.save();
+            }
+
+            if (type === "FAQ") {
+                const faqId = req.query.faqId;
+
+                console.log(faqId);
+
+                const faqDoc = await LayoutModel.findOne({ type });
+
+                if (!faqDoc) {
+                    return next(new ErrorHandler("FAQ not found", 404));
+                }
+
+                // Find the FAQ item within the array by its unique faqId
+                const faqItemIdx = faqDoc.faq.findIndex(
+                    (faqQuestion: any) => faqQuestion._id.toString() === faqId
+                );
+
+                if (faqItemIdx === -1) {
+                    return next(
+                        new ErrorHandler("FAQ Question not found", 404)
+                    );
+                }
+
+                faqDoc.faq.splice(faqItemIdx, 1);
+
+                await faqDoc.save();
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: `${type} deleted`,
+            });
+        } catch (error: any) {
+            console.log("ERROR IN DELETE LAYOUT :", error.message);
             return next(new ErrorHandler(error.message, 500));
         }
     }

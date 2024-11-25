@@ -111,8 +111,6 @@ export const editLayout = CatchAsyncError(
 
                 const { question, answer } = req.body;
 
-                console.log(question, answer);
-
                 const faqDoc = await LayoutModel.findOne({ type });
 
                 if (!faqDoc) {
@@ -129,8 +127,6 @@ export const editLayout = CatchAsyncError(
                         .status(404)
                         .json({ message: "FAQ question not found" });
                 }
-
-                console.log(question, answer);
 
                 await LayoutModel.findOneAndUpdate(
                     { _id: faqDoc._id, "faq._id": faqItem._id },
@@ -197,8 +193,6 @@ export const deleteLayout = CatchAsyncError(
             if (type === "FAQ") {
                 const faqId = req.query.faqId;
 
-                console.log(faqId);
-
                 const faqDoc = await LayoutModel.findOne({ type });
 
                 if (!faqDoc) {
@@ -227,6 +221,49 @@ export const deleteLayout = CatchAsyncError(
             });
         } catch (error: any) {
             console.log("ERROR IN DELETE LAYOUT :", error.message);
+            return next(new ErrorHandler(error.message, 500));
+        }
+    }
+);
+
+export const getLayout = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const type = req.query.type;
+
+            if (type === "FAQ") {
+                const faqDoc = await LayoutModel.findOne({ type: "FAQ" });
+                const allFaqs = faqDoc?.faq;
+
+                return res.status(200).json({
+                    success: true,
+                    faqs: allFaqs,
+                });
+            }
+
+            if (type === "CATEGORY") {
+                const categoryDoc = await LayoutModel.findOne({
+                    type: "CATEGORY",
+                });
+                const allCategories = categoryDoc?.categories;
+
+                return res.status(200).json({
+                    success: true,
+                    categories: allCategories,
+                });
+            }
+
+            if (type === "BANNER") {
+                const bannerDoc = await LayoutModel.findOne({ type: "BANNER" });
+                const banner = bannerDoc?.banner;
+
+                return res.status(200).json({
+                    success: true,
+                    banner: banner,
+                });
+            }
+        } catch (error: any) {
+            console.log("ERROR IN GET LAYOUT :", error.message);
             return next(new ErrorHandler(error.message, 500));
         }
     }

@@ -3,22 +3,28 @@ import jwt, { Secret } from "jsonwebtoken";
 import mongoose, { Document, Schema, Model } from "mongoose";
 import bcrypt from "bcryptjs";
 
+/**
+ * Interface for User Document
+ */
 export interface IUser extends Document {
-    name: string;
-    email: string;
-    password: string;
+    name: string; // User's name
+    email: string; // User's email
+    password: string; // User's hashed password
     avatar: {
-        public_id: string;
-        url: string;
+        public_id: string; // Public ID for the avatar in cloud storage
+        url: string; // URL for the avatar
     };
-    role: string;
-    isVerified: boolean;
-    courses: Array<{ courseId: string }>;
-    comparePassword: (password: string) => Promise<boolean>;
-    SignAccessToken: () => string;
-    SignRefreshToken: () => string;
+    role: string; // User's role (e.g., "user", "admin")
+    isVerified: boolean; // Email verification status
+    courses: Array<{ courseId: string }>; // List of enrolled course IDs
+    comparePassword: (password: string) => Promise<boolean>; // Method to compare entered password with hashed password
+    SignAccessToken: () => string; // Method to sign an access token
+    SignRefreshToken: () => string; // Method to sign a refresh token
 }
 
+/**
+ * User Schema Definition
+ */
 const userSchema: Schema<IUser> = new mongoose.Schema(
     {
         name: {
@@ -28,65 +34,90 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
         email: {
             type: String,
             required: [true, "Please enter your email"],
-            // validate: {
-            //     validator: function (value: string) {
-            //         return EMAIL_REGEX_PATTERN.test(value);
-            //     },
-            //     message: "Please enter a valid email",
-            // },
+            unique: true, // Ensure email uniqueness
+            // lowercase: true, // Normalize email to lowercase
+            validate: {
+                validator: (value: string) =>
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), // Simple email regex validation
+                message: "Please enter a valid email",
+            },
         },
         password: {
             type: String,
             minlength: [6, "Password must be at least 6 characters"],
-            select: false,
+            select: false, // Prevent password from being returned in queries by default
         },
         avatar: {
-            public_id: String,
-            url: String,
+            public_id: {
+                type: String,
+                default: "", // Default empty string for public_id
+            },
+            url: {
+                type: String,
+                default: "", // Default empty string for URL
+            },
         },
         role: {
             type: String,
             default: "user",
+            enum: ["user", "admin"], // Restrict role to specific values
         },
         isVerified: {
             type: Boolean,
-            default: false,
+            default: false, // Default email verification status
         },
-        courses: [{ courseId: String }],
+        courses: [
+            {
+                courseId: { type: String, required: true }, // Ensure course ID is provided
+            },
+        ],
     },
-    { timestamps: true }
+    { timestamps: true } // Automatically add `createdAt` and `updatedAt` fields
 );
 
-// HASH PASSWORD
+/**
+ * Pre-save Middleware: Hash Password
+ */
 userSchema.pre<IUser>("save", async function (next) {
-    if (!this.isModified("password")) {
-        next();
-    }
+    if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 
-// COMPARE PASSWORD
+/**
+ * Instance Method: Compare Password
+ */
 userSchema.methods.comparePassword = async function (
     enteredPassword: string
-): Promise<Boolean> {
-    return await bcrypt.compare(enteredPassword, this.password);
+): Promise<boolean> {
+    return bcrypt.compare(enteredPassword, this.password);
 };
 
-// SIGN ACCESS TOKEN
-userSchema.methods.SignAccessToken = function () {
-    return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_SECRET || "", {
-        expiresIn: "15m",
-    });
+/**
+ * Instance Method: Sign Access Token
+ */
+userSchema.methods.SignAccessToken = function (): string {
+    return jwt.sign(
+        { id: this._id },
+        process.env.ACCESS_TOKEN_SECRET as Secret,
+        { expiresIn: "15m" }
+    );
 };
 
-// SIGN REFRESH TOKEN
-userSchema.methods.SignRefreshToken = function () {
-    return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET || "", {
-        expiresIn: "3d",
-    });
+/**
+ * Instance Method: Sign Refresh Token
+ */
+userSchema.methods.SignRefreshToken = function (): string {
+    return jwt.sign(
+        { id: this._id },
+        process.env.REFRESH_TOKEN_SECRET as Secret,
+        { expiresIn: "3d" }
+    );
 };
 
+/**
+ * User Model
+ */
 const userModel: Model<IUser> = mongoose.model("User", userSchema);
 
 export default userModel;

@@ -53,12 +53,12 @@ export const UserRegistration = CatchAsyncError(
             console.log(activationToken, activationCode);
 
             try {
-                // await sendMail({
-                //     email: user.email,
-                //     subject: "Activation your account",
-                //     template: "activation.email.ejs",
-                //     data,
-                // });
+                await sendMail({
+                    email: user.email,
+                    subject: "Activation your account",
+                    template: "activation.email.ejs",
+                    data,
+                });
 
                 res.status(201).json({
                     success: true,

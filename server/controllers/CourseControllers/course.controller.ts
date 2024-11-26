@@ -7,6 +7,8 @@ import {
 } from "../../services/course.services";
 import ErrorHandler from "../../utils/ErrorHandler";
 import courseModel from "../../models/course.model";
+
+// Uncomment when internet connection is available
 // import { redis } from "../../utils/redis";
 
 // UPLOAD COURSE
@@ -15,13 +17,13 @@ export const uploadCourse = CatchAsyncError(
         try {
             const data = req.body;
 
-            // UNCOMMENT IT WHEN INTERNET CONNECTION IS AVAILIBLE
+            // UNCOMMENT IT WHEN INTERNET CONNECTION IS AVAILABLE
             // const thumbnail = data.thumbnail;
             // if (thumbnail) {
             //     const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
             //         folder: "courses",
             //     });
-
+            //
             //     data.thumbnail = {
             //         public_id: myCloud.public_id,
             //         url: myCloud.url,
@@ -41,12 +43,13 @@ export const editCourse = CatchAsyncError(
         try {
             const data = req.body;
 
-            // UNCOMMENT IT WHEN INTERNET CONNECTION IS THERE
+            // UNCOMMENT IT WHEN INTERNET CONNECTION IS AVAILABLE
             const thumbnail = data.thumbnail;
-
             if (thumbnail) {
+                // Remove old thumbnail from Cloudinary
                 await cloudinary.v2.uploader.destroy(thumbnail.public_id);
 
+                // Upload new thumbnail
                 const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
                     folder: "courses",
                 });
@@ -58,11 +61,16 @@ export const editCourse = CatchAsyncError(
             }
 
             const courseId = req.params.id;
+
             const course = await courseModel.findByIdAndUpdate(
                 courseId,
                 { $set: data },
                 { new: true }
             );
+
+            if (!course) {
+                return next(new ErrorHandler("Course not found!", 404));
+            }
 
             res.status(201).json({
                 success: true,
@@ -74,12 +82,13 @@ export const editCourse = CatchAsyncError(
     }
 );
 
-// get single course --without purchase
+// GET SINGLE COURSE --WITHOUT PURCHASE
 export const getSingleCourse = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const courseId = req.params.id;
 
+            // Use Redis for caching if enabled
             // const isCacheExits = await redis.get(courseId);
             // if (isCacheExits) {
             //     const course = JSON.parse(isCacheExits);
@@ -87,7 +96,8 @@ export const getSingleCourse = CatchAsyncError(
             //         success: true,
             //         course,
             //     });
-            // } else {
+            // }
+
             const course = await courseModel
                 .findById(courseId)
                 .select(
@@ -95,14 +105,13 @@ export const getSingleCourse = CatchAsyncError(
                 );
 
             if (!course) {
-                return next(new ErrorHandler("Course not found !", 404));
+                return next(new ErrorHandler("Course not found!", 404));
             }
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 course,
             });
-            // } // => UCOMMENT THIS WHEN INTERNET CONNECTION IS AVAILIBLE
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400));
         }
@@ -113,6 +122,7 @@ export const getSingleCourse = CatchAsyncError(
 export const getAllCourses = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            // Use Redis for caching if enabled
             // const isCacheExits = await redis.get("allCourses");
             // if (isCacheExits) {
             //     const allCourses = JSON.parse(isCacheExits);
@@ -120,7 +130,8 @@ export const getAllCourses = CatchAsyncError(
             //         success: true,
             //         allCourses,
             //     });
-            // } else {
+            // }else{
+
             const allCourses = await courseModel
                 .find()
                 .select(
@@ -129,24 +140,25 @@ export const getAllCourses = CatchAsyncError(
 
             // await redis.set("allCourses", JSON.stringify(allCourses)); //  =>   UNCOMMENT IT WHEN INTERNET CONNECTION IS AVAILIBLE
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
                 allCourses,
             });
-            // } //  =>   UNCOMMENT IT WHEN INTERNET CONNECTION IS AVAILIBLE
+            // }  TODO: UNCOMMENT IF WHEN INTERNET CONNETION IS AVAILIBLE
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400));
         }
     }
 );
 
-// GET COURSE CONTENT ==> ONLY FOR VALID USER
+// GET COURSE CONTENT ==> ONLY FOR VALID USERS
 export const getCourseByUser = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userCourseList = req.user.courses;
             const courseId = req.params.id;
 
+            // Verify user's access to the course
             const courseExists = userCourseList?.find(
                 (course: any) => course._id.toString() === courseId
             );
@@ -154,19 +166,21 @@ export const getCourseByUser = CatchAsyncError(
             if (!courseExists) {
                 return next(
                     new ErrorHandler(
-                        "You are not eligible to access this course",
-                        404
+                        "You are not eligible to access this course.",
+                        403
                     )
                 );
             }
 
             const course = await courseModel.findById(courseId);
 
-            const contents = course?.courseData;
+            if (!course) {
+                return next(new ErrorHandler("Course not found!", 404));
+            }
 
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
-                contents,
+                contents: course.courseData,
             });
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400));
@@ -174,41 +188,42 @@ export const getCourseByUser = CatchAsyncError(
     }
 );
 
-// all courses only for admin
+// GET ALL COURSES FOR ADMIN
 export const getAllCoursesForAdmin = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             await allCoursesService(res);
         } catch (error: any) {
-            console.log("[ERROR IN GET ALL USER] :", error.message);
+            console.error(
+                "[ERROR IN GET ALL COURSES FOR ADMIN]:",
+                error.message
+            );
             return next(new ErrorHandler(error.message, 500));
         }
     }
 );
 
+// DELETE COURSE
 export const deleteCourse = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const courseId = req.params.id;
 
-            if (courseId) {
-                const dbCourse = await courseModel.findById(courseId);
+            const course = await courseModel.findById(courseId);
 
-                if (!dbCourse) {
-                    return next(new ErrorHandler("Course not found.", 404));
-                }
-
-                await dbCourse.deleteOne();
-
-                return res.status(200).json({
-                    success: true,
-                    message: "course deleted successfully.",
-                });
-            } else {
-                return next(new ErrorHandler("CourseId not found.", 400));
+            if (!course) {
+                return next(new ErrorHandler("Course not found!", 404));
             }
+
+            // Delete course from the database
+            await course.deleteOne();
+
+            res.status(200).json({
+                success: true,
+                message: "Course deleted successfully.",
+            });
         } catch (error: any) {
-            console.log("[ERROR IN DELETE COURSE] : %d", error.message);
+            console.error("[ERROR IN DELETE COURSE]:", error.message);
             return next(new ErrorHandler(error.message, 500));
         }
     }

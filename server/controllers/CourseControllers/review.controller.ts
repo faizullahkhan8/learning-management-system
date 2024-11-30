@@ -121,7 +121,7 @@ export const addReviewReply = CatchAsyncError(
                 commnet: reply,
             };
 
-            review.reviewReplies?.push(newReviewReply);
+            review.reveiwReplies?.push(newReviewReply);
 
             await course.save();
 

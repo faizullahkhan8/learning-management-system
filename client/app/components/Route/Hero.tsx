@@ -1,12 +1,10 @@
 import Image from "next/image";
-import React, { FC } from "react";
+import React from "react";
 import image from "@/public/IMG_20210901_113021.jpg";
 import { BiSearch } from "react-icons/bi";
 import Link from "next/link";
 
-type Props = {};
-
-const Hero: FC<Props> = (props) => {
+const Hero = () => {
     return (
         <div className="w-full 1000px:flex items-center">
             {/* <div className="absolute top-[100px] 1000px:top-[unset] 1500px:h-[700px] 1500px:w-[700px] 1100px:h-[500px] 1100px:w-[500px] h-[50vh] w-[50vh] hero_animation rounded-[50%] 1100px:left-[18rem] 1500px:left-[7rem] bg-blue-600"></div> */}
@@ -53,14 +51,14 @@ const Hero: FC<Props> = (props) => {
                         width={60}
                         height={60}
                         alt=""
-                        className="rounded-full ml-[-20px]"
+                        className="rounded-full ml-[-30px]"
                     />
                     <Image
                         src={image}
                         width={60}
                         height={60}
                         alt=""
-                        className="rounded-full ml-[-20px]"
+                        className="rounded-full ml-[-30px]"
                     />
                     <p className="font-Josefin dark:text-[#edfff4] text-[#000000b3] 1000px:pl-3 text-[18px] font-[500]">
                         500K+ People already trusted us.

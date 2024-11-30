@@ -36,7 +36,7 @@ export const addCourseReview = CatchAsyncError(
 
             const course = await courseModel.findById(courseId);
 
-            const newReview: IReviewOptions = {
+            const newReview: any = {
                 user: req.user._id as object,
                 review: review,
                 rating,
@@ -55,7 +55,7 @@ export const addCourseReview = CatchAsyncError(
 
                 average /= course?.reviews.length;
 
-                course.rating = average;
+                course.ratings = average;
             }
 
             let notification = {
@@ -121,7 +121,7 @@ export const addReviewReply = CatchAsyncError(
                 commnet: reply,
             };
 
-            review.reveiwReplies?.push(newReviewReply);
+            review.reviewReplies?.push(newReviewReply);
 
             await course.save();
 

@@ -29,8 +29,9 @@ app.use(cookieParser());
 // CORS COFIGURATION
 app.use(
     cors({
-        origin: process.env.ORIGIN,
+        origin: ["http://localhost:3000"],
         methods: ["POST", "GET", "DELETE", "PUT"],
+        credentials: true,
     })
 );
 

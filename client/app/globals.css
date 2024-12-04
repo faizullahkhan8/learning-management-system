@@ -14,11 +14,22 @@
         --background-end-rgb: 0, 0, 0;
     }
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 body {
     color: rgb(var(--foreground-rgb));
     background: linear-gradient(
         to bottom,
-        rgb(var(--background-end-rgb)) hsla(239, 76%, 53%, 0.456) 10.41%
+        rgb(var(--background-end-rgb)) rgb(var(--background-start-rgb)) 10.41%
     );
 }
 
@@ -50,4 +61,29 @@ body {
     83.33% {
         opacity: 0.6;
     }
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px);
+    }
+    40% {
+        transform: translate(2px);
+    }
+    60% {
+        transform: translate(-2px);
+    }
+    80% {
+        transform: translate(2px);
+    }
+    100% {
+        transform: translate(0);
+    }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
 }

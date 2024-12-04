@@ -1,16 +1,32 @@
+"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Link from "next/link";
 import React, { FC, useState } from "react";
 import NavItems from "../utils/NavItems";
 import { ThemeSwitcher } from "../utils/ThemeSwitcher";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
 
+import CustomModel from "../utils/CustomModel";
+import Login from "../components/Auth/Login";
+import SignUp from "../components/Auth/SignUp";
+import Verification from "../components/Auth/Verification";
+
 interface HeaderProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     activeItem: number;
+    setRoute: (route: string) => void;
+    route: string;
 }
 
-const Header: FC<HeaderProps> = ({ open, setOpen, activeItem }) => {
+const Header: FC<HeaderProps> = ({
+    open,
+    setOpen,
+    activeItem,
+    route,
+    setRoute,
+}) => {
     const [active, setActive] = useState(false);
     const [openSidebar, setOpenSidebar] = useState(false);
 
@@ -100,6 +116,45 @@ const Header: FC<HeaderProps> = ({ open, setOpen, activeItem }) => {
                     </div>
                 )}
             </div>
+            {route === "Login" && (
+                <>
+                    {open && (
+                        <CustomModel
+                            activeItem={activeItem}
+                            open={open}
+                            setOpen={setOpen}
+                            setRoute={setRoute}
+                            component={Login}
+                        />
+                    )}
+                </>
+            )}
+            {route === "Sign-Up" && (
+                <>
+                    {open && (
+                        <CustomModel
+                            activeItem={activeItem}
+                            open={open}
+                            setOpen={setOpen}
+                            setRoute={setRoute}
+                            component={SignUp}
+                        />
+                    )}
+                </>
+            )}
+            {route === "Verification" && (
+                <>
+                    {open && (
+                        <CustomModel
+                            activeItem={activeItem}
+                            open={open}
+                            setOpen={setOpen}
+                            setRoute={setRoute}
+                            component={Verification}
+                        />
+                    )}
+                </>
+            )}
         </div>
     );
 };

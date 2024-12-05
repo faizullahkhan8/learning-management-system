@@ -50,20 +50,25 @@ export const UserRegistration = CatchAsyncError(
 
             const data = { user: { name: user.name }, activationCode };
 
-            console.log(activationToken, activationCode);
+            console.log(activationCode);
 
             try {
-                // await sendMail({
-                //     email: user.email,
-                //     subject: "Activation your account",
-                //     template: "activation.email.ejs",
-                //     data,
-                // });
+                await sendMail({
+                    email: user.email,
+                    subject: "Activation your account",
+                    template: "activation.email.ejs",
+                    data,
+                });
+
+                res.cookie("activationToken", activationToken.token, {
+                    expires: new Date(Date.now() + 5 * 60 * 1000),
+                    maxAge: 5 * 60 * 1000,
+                    httpOnly: true,
+                });
 
                 res.status(201).json({
                     success: true,
                     message: `Plase cheak your email ${user.email} to activate your account`,
-                    activationToken: activationToken.token,
                 });
             } catch (error: any) {
                 return next(new ErrorHandler(error.message, 400));
@@ -105,10 +110,15 @@ export const activateUser = CatchAsyncError(async function (
     next: NextFunction
 ) {
     try {
-        const { activation_token, activation_code } =
-            req.body as IActivationRequest;
+        const { activation_code } = req.body as IActivationRequest;
 
-        const newUser: { user: IUser; activationCode: string } = jwt.verify(
+        console.log(activation_code);
+
+        const activation_token = req.cookies.activationToken;
+
+        console.log(activation_token);
+
+        const newUser = jwt.verify(
             activation_token,
             process.env.ACTIVATION_SECRET as string
         ) as { user: IUser; activationCode: string };

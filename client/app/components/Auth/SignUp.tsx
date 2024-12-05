@@ -27,23 +27,19 @@ const schema = Yup.object().shape({
 const SignUp: FC<ISignUpOptions> = ({ setRoute }) => {
     const [show, setShow] = useState(false);
 
-    const [register, { data, error, isSuccess }] = useRegisterMutation();
+    const [register, { data, error, isSuccess, isLoading }] =
+        useRegisterMutation();
 
     useEffect(() => {
         if (isSuccess) {
             const message = data.message || "Registeration successful";
-
             toast.success(message);
-
             setRoute("Verification");
         }
         if (error) {
             if ("data" in error) {
                 const errorData = error as any;
-                toast.error(
-                    "Error in Sign Up Component",
-                    errorData.data.message
-                );
+                toast.error(errorData.data.message || "something wents wrong!");
             }
         }
     }, [isSuccess, error]);
@@ -146,7 +142,8 @@ const SignUp: FC<ISignUpOptions> = ({ setRoute }) => {
                 <div className="w-full mt-5">
                     <input
                         type="submit"
-                        value="Sign Up"
+                        value={isLoading ? "Loading..." : "Sign Up"}
+                        disabled={isLoading}
                         className={styles.button}
                     />
                 </div>

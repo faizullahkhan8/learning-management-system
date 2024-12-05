@@ -24,27 +24,19 @@ export const authApi = apiSlice.injectEndpoints({
                 credentials: "include" as const,
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
-                try {
-                    const result = await queryFulfilled;
-                    dispatch(
-                        userRegisteration({
-                            token: result.data.activationToken,
-                        })
-                    );
-                } catch (error: any) {
-                    console.log(
-                        "Error in Register Query Started : ",
-                        error.error.data
-                    );
-                    toast.error(error.error.data.message);
-                }
+                const result = await queryFulfilled;
+                dispatch(
+                    userRegisteration({
+                        token: result.data.activationToken,
+                    })
+                );
             },
         }),
         activation: builder.mutation({
-            query: ({ activation_token, activation_code }) => ({
-                url: "registration/activation",
+            query: ({ activation_code }) => ({
+                url: "user/registration/activate",
                 method: "POST",
-                body: { activation_token, activation_code },
+                body: { activation_code },
                 credentials: "include" as const,
             }),
         }),

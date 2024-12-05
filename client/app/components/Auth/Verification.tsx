@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { styles } from "@/app/styles/styles";
-import React, { useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { VscWorkspaceTrusted } from "react-icons/vsc";
+
+import { useActivationMutation } from "@/app/redux/Features/Auth/authApi";
 
 interface IVerificationOptions {
     setRoute: (route: string) => void;
@@ -16,8 +19,25 @@ interface IVerificationNumber {
     "3": string;
 }
 
-const Verification = ({ setRoute }: { setRoute: (route: string) => void }) => {
+const Verification: FC<IVerificationOptions> = ({ setRoute }) => {
     const [invalidError, setInvalidError] = useState<boolean>(false);
+
+    const [activation, { error, isSuccess, isLoading }] =
+        useActivationMutation();
+
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("Account activated successfully.");
+            setRoute("Login");
+        }
+        if (error) {
+            if ("data" in error) {
+                setInvalidError(true);
+                const errorData = error as any;
+                toast.error(errorData.data.message);
+            }
+        }
+    }, [isSuccess, error]);
 
     const inputRefs = [
         useRef<HTMLInputElement>(null),
@@ -34,7 +54,14 @@ const Verification = ({ setRoute }: { setRoute: (route: string) => void }) => {
     });
 
     const verificationHandler = async () => {
-        setInvalidError(true);
+        const activation_code = Object.values(verifyNumber).join("");
+
+        if (activation_code.length !== 4) {
+            setInvalidError(true);
+            return;
+        }
+
+        await activation({ activation_code });
     };
 
     const handleInputChange = (index: number, value: string) => {
@@ -84,7 +111,7 @@ const Verification = ({ setRoute }: { setRoute: (route: string) => void }) => {
             <br />
             <div className="w-full flex justify-center">
                 <button className={styles.button} onClick={verificationHandler}>
-                    Verify OTP
+                    {isLoading ? "Loading..." : "Verify OTP"}
                 </button>
             </div>
             <br />

@@ -1,8 +1,10 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import image from "@/public/images/IMG_20210901_113021.jpg";
 import { BiSearch } from "react-icons/bi";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const Hero = () => {
     return (

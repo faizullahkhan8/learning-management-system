@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState = {
     token: "",
@@ -13,7 +13,10 @@ const authSlice = createSlice({
         userRegisteration: (state, action) => {
             state.token = action.payload.token;
         },
-        userLoggedIn: (state, action) => {
+        userLoggedIn: (
+            state,
+            action: PayloadAction<{ token: string; user: string }>
+        ) => {
             state.token = action.payload.token;
             state.user = action.payload.user;
         },
@@ -26,3 +29,5 @@ const authSlice = createSlice({
 
 export const { userRegisteration, userLoggedIn, userLoggedOut } =
     authSlice.actions;
+
+export default authSlice.reducer;

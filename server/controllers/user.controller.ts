@@ -53,12 +53,12 @@ export const UserRegistration = CatchAsyncError(
             console.log(activationCode);
 
             try {
-                await sendMail({
-                    email: user.email,
-                    subject: "Activation your account",
-                    template: "activation.email.ejs",
-                    data,
-                });
+                // await sendMail({
+                //     email: user.email,
+                //     subject: "Activation your account",
+                //     template: "activation.email.ejs",
+                //     data,
+                // });
 
                 res.cookie("activationToken", activationToken.token, {
                     expires: new Date(Date.now() + 5 * 60 * 1000),
@@ -116,8 +116,6 @@ export const activateUser = CatchAsyncError(async function (
 
         const activation_token = req.cookies.activationToken;
 
-        console.log(activation_token);
-
         const newUser = jwt.verify(
             activation_token,
             process.env.ACTIVATION_SECRET as string
@@ -140,6 +138,8 @@ export const activateUser = CatchAsyncError(async function (
             email,
             password,
         });
+
+        res.clearCookie("activationToken");
 
         sendToken(user, 200, res);
     } catch (error: any) {

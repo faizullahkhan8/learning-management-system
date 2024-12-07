@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useTheme } from "next-themes";
@@ -9,6 +9,8 @@ import {
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { styles } from "../../styles/styles";
+import { useLoginMutation } from "@/app/redux/Features/Auth/authApi";
+import toast from "react-hot-toast";
 
 interface ILoginOptions {
     setRoute: (route: string) => void;
@@ -24,13 +26,28 @@ const schema = Yup.object().shape({
 const Login: FC<ILoginOptions> = ({ setRoute }) => {
     const [show, setShow] = useState(false);
 
+    const [login, { isLoading, error, isSuccess }] = useLoginMutation();
+
     const { theme } = useTheme();
+
+    useEffect(() => {
+        if (error) {
+            if ("data" in error) {
+                const errorData = error as any;
+                toast.error(errorData.data.message);
+            }
+        }
+        if (isSuccess) {
+            toast.success("Login Successfully");
+            setRoute("");
+        }
+    }, [isSuccess, error]);
 
     const formik = useFormik({
         initialValues: { email: "", password: "" },
         validationSchema: schema,
         onSubmit: async ({ email, password }) => {
-            console.log(email, password);
+            await login({ email, password });
         },
     });
 
@@ -45,7 +62,7 @@ const Login: FC<ILoginOptions> = ({ setRoute }) => {
                 </label>
                 <input
                     type="email"
-                    name=""
+                    name="email"
                     value={values.email}
                     onChange={handleChange}
                     id="email"
@@ -99,7 +116,8 @@ const Login: FC<ILoginOptions> = ({ setRoute }) => {
                 <div className="w-full mt-5">
                     <input
                         type="submit"
-                        value="Login"
+                        value={isLoading ? "Loading..." : "Login"}
+                        disabled={isLoading}
                         className={styles.button}
                     />
                 </div>

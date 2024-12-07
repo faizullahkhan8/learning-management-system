@@ -7,10 +7,14 @@ import NavItems from "../utils/NavItems";
 import { ThemeSwitcher } from "../utils/ThemeSwitcher";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
 
+import AvatarPlaceHolder from "@/public/images/avatar.png";
+
 import CustomModel from "../utils/CustomModel";
 import Login from "../components/Auth/Login";
 import SignUp from "../components/Auth/SignUp";
 import Verification from "../components/Auth/Verification";
+import { useSelector } from "react-redux";
+import Image from "next/image";
 
 interface HeaderProps {
     open: boolean;
@@ -29,6 +33,7 @@ const Header: FC<HeaderProps> = ({
 }) => {
     const [active, setActive] = useState(false);
     const [openSidebar, setOpenSidebar] = useState(false);
+    const { user } = useSelector((state: any) => state.auth);
 
     if (typeof window !== "undefined") {
         window.addEventListener("scroll", () => {
@@ -79,11 +84,25 @@ const Header: FC<HeaderProps> = ({
                                     onClick={() => setOpenSidebar(true)}
                                 />
                             </div>
-                            <HiOutlineUserCircle
-                                size={25}
-                                className="hidden 800px:block cursor-pointer dark:text-white text-black "
-                                onClick={() => setOpen(true)}
-                            />
+                            {user ? (
+                                <Link href="/profile">
+                                    <Image
+                                        src={
+                                            user.avatar
+                                                ? user.avatar.url
+                                                : AvatarPlaceHolder
+                                        }
+                                        alt="user avatar"
+                                        className="hidden 800px:block rounded-full w-[30px] h-[30px] border dark:border-transparent border-black cursor-pointer"
+                                    />
+                                </Link>
+                            ) : (
+                                <HiOutlineUserCircle
+                                    size={25}
+                                    className="hidden 800px:block cursor-pointer dark:text-white text-black "
+                                    onClick={() => setOpen(true)}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -102,11 +121,27 @@ const Header: FC<HeaderProps> = ({
                                 </Link>
                             </div>
                             <NavItems activeItem={activeItem} isMobile={true} />
-                            <HiOutlineUserCircle
-                                size={25}
-                                className="cursor-pointer ml-5 my-2 dark:text-white text-black "
-                                onClick={() => setOpen(true)}
-                            />
+                            {user ? (
+                                <>
+                                    <Link href="/profile">
+                                        <Image
+                                            src={
+                                                user.avatar
+                                                    ? user.avatar.url
+                                                    : AvatarPlaceHolder
+                                            }
+                                            alt="user avatar"
+                                            className="rounded-full ml-5 my-2 w-[30px] h-[30px] border dark:border-transparent border-black cursor-pointer"
+                                        />
+                                    </Link>
+                                </>
+                            ) : (
+                                <HiOutlineUserCircle
+                                    size={25}
+                                    className="cursor-pointer ml-5 my-2 dark:text-white text-black "
+                                    onClick={() => setOpen(true)}
+                                />
+                            )}
                             <br />
                             <br />
                             <p className="text-[16px] px-2 pl-5 text-black dark:text-white">

@@ -15,6 +15,8 @@ import SignUp from "../components/Auth/SignUp";
 import Verification from "../components/Auth/Verification";
 import { useSelector } from "react-redux";
 import Image from "next/image";
+import { useLoadUserQuery } from "../redux/Features/api/apiSlice";
+import { ClipLoader } from "react-spinners";
 
 interface HeaderProps {
     open: boolean;
@@ -34,6 +36,8 @@ const Header: FC<HeaderProps> = ({
     const [active, setActive] = useState(false);
     const [openSidebar, setOpenSidebar] = useState(false);
     const { user } = useSelector((state: any) => state.auth);
+
+    const { isLoading } = useLoadUserQuery({});
 
     if (typeof window !== "undefined") {
         window.addEventListener("scroll", () => {
@@ -79,12 +83,12 @@ const Header: FC<HeaderProps> = ({
                             {/* ONLY FOR MOBILE */}
                             <div className="800px:hidden">
                                 <HiOutlineMenuAlt3
-                                    size={25}
+                                    size={30}
                                     className="cursor-pointer dark:text-white text-black "
                                     onClick={() => setOpenSidebar(true)}
                                 />
                             </div>
-                            {user ? (
+                            {!isLoading && user && (
                                 <Link href="/profile">
                                     <Image
                                         src={
@@ -96,9 +100,16 @@ const Header: FC<HeaderProps> = ({
                                         className="hidden 800px:block rounded-full w-[30px] h-[30px] border dark:border-transparent border-black cursor-pointer"
                                     />
                                 </Link>
-                            ) : (
+                            )}
+                            {isLoading && !user && (
+                                <ClipLoader
+                                    className="dark:text-white text-black"
+                                    size={30}
+                                />
+                            )}
+                            {!isLoading && !user && (
                                 <HiOutlineUserCircle
-                                    size={25}
+                                    size={30}
                                     className="hidden 800px:block cursor-pointer dark:text-white text-black "
                                     onClick={() => setOpen(true)}
                                 />

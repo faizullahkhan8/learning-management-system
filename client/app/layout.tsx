@@ -6,9 +6,8 @@ import { Toaster } from "react-hot-toast";
 
 import { Poppins } from "next/font/google";
 import { Josefin_Sans } from "next/font/google";
-import Heading from "./utils/Heading";
 import Header from "./components/Header";
-import { useState } from "react";
+import React, { FC, useState } from "react";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -41,11 +40,6 @@ export default function RootLayout({
                         defaultTheme="system"
                         enableSystem
                     >
-                        <Heading
-                            title="Home"
-                            description="ELearning is a platform for students to learn and get help from teacher"
-                            keywords="programming,MERN,Redux,Mechine Learning"
-                        />
                         <Header
                             open={open}
                             setOpen={setOpen}

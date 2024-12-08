@@ -4,7 +4,7 @@
 import toast from "react-hot-toast";
 import { apiSlice } from "../api/apiSlice";
 
-import { userRegisteration, userLoggedIn } from "./authSlice";
+import { userRegisteration, userLoggedIn, userLoggedOut } from "./authSlice";
 
 interface RegisterationResponse {
     message: string;
@@ -65,8 +65,30 @@ export const authApi = apiSlice.injectEndpoints({
                     });
             },
         }),
+        // TODO: MAKE THE SOCIAL AUTH FUNTION
+
+        logout: builder.query({
+            query: () => ({
+                url: "user/logout",
+                method: "GET",
+                credentials: "include" as const,
+            }),
+            async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+                await queryFulfilled
+                    .then(() => {
+                        dispatch(userLoggedOut({}));
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            },
+        }),
     }),
 });
 
-export const { useRegisterMutation, useActivationMutation, useLoginMutation } =
-    authApi;
+export const {
+    useRegisterMutation,
+    useActivationMutation,
+    useLoginMutation,
+    useLogoutQuery,
+} = authApi;

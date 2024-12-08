@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 
 interface ILoginOptions {
     setRoute: (route: string) => void;
+    setOpen: (open: boolean) => void;
 }
 
 const schema = Yup.object().shape({
@@ -23,7 +24,7 @@ const schema = Yup.object().shape({
     password: Yup.string().required("Please enter your password").min(6),
 });
 
-const Login: FC<ILoginOptions> = ({ setRoute }) => {
+const Login: FC<ILoginOptions> = ({ setRoute, setOpen }) => {
     const [show, setShow] = useState(false);
 
     const [login, { isLoading, error, isSuccess }] = useLoginMutation();
@@ -39,7 +40,7 @@ const Login: FC<ILoginOptions> = ({ setRoute }) => {
         }
         if (isSuccess) {
             toast.success("Login Successfully");
-            setRoute("");
+            setOpen(false);
         }
     }, [isSuccess, error]);
 

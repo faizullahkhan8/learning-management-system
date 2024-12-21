@@ -14,9 +14,14 @@ const navItemsData = [
 type NavItemsProps = {
     activeItem: number;
     isMobile: boolean;
+    setActiveItem(item: number): void;
 };
 
-const NavItems: FC<NavItemsProps> = ({ activeItem, isMobile }) => {
+const NavItems: FC<NavItemsProps> = ({
+    activeItem,
+    isMobile,
+    setActiveItem,
+}) => {
     return (
         <>
             <div className="hidden 800px:flex">
@@ -29,6 +34,7 @@ const NavItems: FC<NavItemsProps> = ({ activeItem, isMobile }) => {
                                         ? "dark:text-[#37a39a] text-[crimson]"
                                         : "dark:text-white text-black"
                                 } text-[18px] px-6 font-Poppins font-[400]`}
+                                onClick={() => setActiveItem(index)}
                             >
                                 {item.name}
                             </span>

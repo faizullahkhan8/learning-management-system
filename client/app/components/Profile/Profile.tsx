@@ -1,20 +1,22 @@
 "use client";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import SideBarProfile from "./SideBarProfile";
 import { useLogoutQuery } from "@/app/redux/Features/Auth/authApi";
-import { redirect } from "next/navigation";
-import { signOut } from "next-auth/react";
+import ProfileInfo from "./ProfileInfo";
+import ChangePassword from "./ChangePassword";
+import EnrolledCourses from "./EnrolledCourses";
+import toast from "react-hot-toast";
 interface IProfileOptions {
     user: any;
 }
 
 const Profile: FC<IProfileOptions> = ({ user }) => {
     const [scroll, setScroll] = useState(false);
-    const [avatar, setAvatar] = useState(null);
+    const [avatar, setAvatar] = useState<string | null>(null);
     const [logout, setLogout] = useState(false);
 
     const [active, setActive] = useState<number>(1);
-    const {} = useLogoutQuery(undefined, {
+    const { isLoading: logoutLoading } = useLogoutQuery(undefined, {
         skip: !logout ? true : false,
     });
 
@@ -46,7 +48,19 @@ const Profile: FC<IProfileOptions> = ({ user }) => {
                     avatar={avatar}
                     setActive={setActive}
                     logOutHandler={logOutHandler}
+                    logoutLoading={logoutLoading}
                 />
+            </div>
+            <div className="w-full h-full bg-transparent mt-[80px]">
+                {active === 1 && (
+                    <ProfileInfo
+                        user={user}
+                        avatar={avatar}
+                        setAvatar={setAvatar}
+                    />
+                )}
+                {active === 2 && <ChangePassword />}
+                {active === 3 && <EnrolledCourses />}
             </div>
         </div>
     );

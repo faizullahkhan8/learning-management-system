@@ -1,6 +1,4 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Link from "next/link";
 import React, { FC, useState } from "react";
 import NavItems from "../utils/NavItems";
@@ -16,12 +14,12 @@ import Verification from "../components/Auth/Verification";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { useLoadUserQuery } from "../redux/Features/api/apiSlice";
-import { ClipLoader } from "react-spinners";
 
 interface HeaderProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     activeItem: number;
+    setActiveItem: (item: number) => void;
     setRoute: (route: string) => void;
     route: string;
 }
@@ -30,6 +28,7 @@ const Header: FC<HeaderProps> = ({
     open,
     setOpen,
     activeItem,
+    setActiveItem,
     route,
     setRoute,
 }) => {
@@ -77,6 +76,7 @@ const Header: FC<HeaderProps> = ({
                         <div className="flex items-center">
                             <NavItems
                                 activeItem={activeItem}
+                                setActiveItem={setActiveItem}
                                 isMobile={false}
                             />
                             <ThemeSwitcher />
@@ -88,8 +88,11 @@ const Header: FC<HeaderProps> = ({
                                     onClick={() => setOpenSidebar(true)}
                                 />
                             </div>
-                            {!isLoading && user && (
-                                <Link href="/profile">
+                            {!isLoading && user ? (
+                                <Link
+                                    href="/profile"
+                                    onClick={() => setActiveItem(5)}
+                                >
                                     <Image
                                         src={
                                             user.avatar
@@ -97,17 +100,18 @@ const Header: FC<HeaderProps> = ({
                                                 : AvatarPlaceHolder
                                         }
                                         alt="user avatar"
-                                        className="hidden 800px:block rounded-full w-[30px] h-[30px] border dark:border-transparent border-black cursor-pointer"
+                                        width={40}
+                                        height={40}
+                                        className="hidden 800px:block rounded-full border dark:border-transparent border-black cursor-pointer"
+                                        style={{
+                                            border:
+                                                activeItem === 5
+                                                    ? "3px solid #37a39a"
+                                                    : "none",
+                                        }}
                                     />
                                 </Link>
-                            )}
-                            {isLoading && !user && (
-                                <ClipLoader
-                                    className="dark:text-white text-black"
-                                    size={30}
-                                />
-                            )}
-                            {!isLoading && !user && (
+                            ) : (
                                 <HiOutlineUserCircle
                                     size={30}
                                     className="hidden 800px:block cursor-pointer dark:text-white text-black "
@@ -131,7 +135,11 @@ const Header: FC<HeaderProps> = ({
                                     </span>
                                 </Link>
                             </div>
-                            <NavItems activeItem={activeItem} isMobile={true} />
+                            <NavItems
+                                setActiveItem={setActiveItem}
+                                activeItem={activeItem}
+                                isMobile={true}
+                            />
                             {user ? (
                                 <>
                                     <Link href="/profile">

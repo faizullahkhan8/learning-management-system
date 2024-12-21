@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import toast from "react-hot-toast";
 import { apiSlice } from "../api/apiSlice";
 
 import { userRegisteration, userLoggedIn, userLoggedOut } from "./authSlice";
@@ -83,6 +79,16 @@ export const authApi = apiSlice.injectEndpoints({
                     });
             },
         }),
+
+        // CHANGE PASSWORD
+        changePassword: builder.mutation({
+            query: ({ oldPassword, newPassword }) => ({
+                url: "user/update/password",
+                method: "PUT",
+                body: { oldPassword, newPassword },
+                credentials: "include" as const,
+            }),
+        }),
     }),
 });
 
@@ -91,4 +97,5 @@ export const {
     useActivationMutation,
     useLoginMutation,
     useLogoutQuery,
+    useChangePasswordMutation,
 } = authApi;

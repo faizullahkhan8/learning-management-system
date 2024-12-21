@@ -31,6 +31,7 @@ const Hero = () => {
                 <div className="1500px:w-[60%] 1100px:w-[78%] w-full h-[58px] bg-transparent relative">
                     <input
                         type="search"
+                        id="search"
                         placeholder="Search Courses..."
                         className="bg-transparent border dark:border-none dark:bg-[#575757] dark:placeholder:text-[#ffffff] rounded-[5px] p-2 w-full h-full outline-none text-[#0000004e] dark:text-[#ffffffe6] text-[20px] font-[500] font-Josefin "
                     />

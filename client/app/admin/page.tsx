@@ -3,6 +3,7 @@ import React from "react";
 import Heading from "../utils/Heading";
 import AdminSideBar from "../components/Admin/Sidebar/AdminSideBar";
 import AdminProtected from "../hooks/useAdminProtected";
+import DashboardHero from "../components/Admin/DashboardHero";
 
 type Props = {};
 
@@ -15,12 +16,8 @@ const Admin = (props: Props) => {
                     description="ELearning is a platform for students to learn and get help from teacher"
                     keywords="programming,MERN,Redux,Mechine Learning"
                 />
-                <div className="flex h-[200vh]">
-                    <div className="1500px:w-[16%] w-1/5">
-                        <AdminSideBar />
-                    </div>
-                    <div className="w-[85%]"></div>
-                </div>
+
+                <DashboardHero />
             </AdminProtected>
         </div>
     );

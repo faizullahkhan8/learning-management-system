@@ -10,7 +10,8 @@ interface IUseProtectedOptions {
 export default function useAdminProtected({ children }: IUseProtectedOptions) {
     const { user } = useSelector((state: any) => state.auth);
 
-    const isAuthenticated = user.role === "admin";
-
-    return isAuthenticated ? children : redirect("/");
+    if (user) {
+        const isAuthenticated = user.role === "admin";
+        return isAuthenticated ? children : redirect("/");
+    }
 }

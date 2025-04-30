@@ -4,7 +4,7 @@ import { Providers } from "./Provider";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-import { BounceLoader, ClipLoader } from "react-spinners";
+import { ClipLoader } from "react-spinners";
 
 import { Poppins } from "next/font/google";
 import { Josefin_Sans } from "next/font/google";
@@ -30,10 +30,6 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const [open, setOpen] = useState(false);
-    const [activeItem, setActiveItem] = useState(0);
-    const [route, setRoute] = useState("Login");
-
     return (
         <html lang="en">
             <body
@@ -45,14 +41,6 @@ export default function RootLayout({
                         defaultTheme="system"
                         enableSystem
                     >
-                        <Header
-                            open={open}
-                            setOpen={setOpen}
-                            activeItem={activeItem}
-                            setActiveItem={setActiveItem}
-                            setRoute={setRoute}
-                            route={route}
-                        />
                         <CustomLoader>{children}</CustomLoader>
                         <Toaster position="top-center" reverseOrder={false} />
                     </ThemeProvider>

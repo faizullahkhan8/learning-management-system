@@ -8,7 +8,7 @@ type Props = {};
 const DashboardHeader: FC<Props> = () => {
     const [open, setOpen] = useState(false);
     return (
-        <div className="w-full flex items-center justify-end p-6 fixed top-5 right-0">
+        <div className="flex items-center justify-end p-6 fixed top-0 right-0 z-0">
             <ThemeSwitcher />
             <div
                 className="relative cursor-pointer m-2"

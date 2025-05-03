@@ -3,7 +3,7 @@ import React from "react";
 import Heading from "../utils/Heading";
 import AdminSideBar from "../components/Admin/Sidebar/AdminSideBar";
 import AdminProtected from "../hooks/useAdminProtected";
-import DashboardHero from "../components/Admin/DashboardHero";
+import DashboardHero from "../components/Admin/Dashboard/DashboardHero";
 
 type Props = {};
 
